@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.zayn.swiprefresh.MainActivity">
 
 
@@ -84,35 +80,37 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@color/colorPrimary"
         android:gravity="bottom">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startLoad"
-            android:text="begin Load"/>
+            android:text="begin"/>
 
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="stopLoad"
-            android:text="Load finish"/>
+            android:text="finish"/>
 
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="loadError"
-            android:text="load error"/>
+            android:text="error"/>
 
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="loadEmpty"
-            android:text="load empty"/>
+            android:text="empty"/>
 
 
     </LinearLayout>

@@ -15,14 +15,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         loadingLayout = (LoadingLayout) findViewById(R.id.loadLayout);
-
-
-        loadingLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                loadingLayout.error();
-            }
-        }, 500);
     }
 
     public void startLoad(View view) {

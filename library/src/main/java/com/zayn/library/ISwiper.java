@@ -30,4 +30,15 @@ public interface ISwiper {
      * @param listener @see OnSwipeLoadListener
      */
     void setOnSwipeListener(OnSwipeLoadListener listener);
+
+    /**
+     * stop loading state.
+     *
+     */
+    void stopSwipeLoading();
+
+    /**
+     * set the content offset when scroll the layout.
+     */
+    void setSwipeOffset(int start, int end);
 }

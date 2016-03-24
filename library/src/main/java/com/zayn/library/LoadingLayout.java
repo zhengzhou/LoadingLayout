@@ -52,28 +52,35 @@ public class LoadingLayout extends FrameLayout implements ILoader{
     @Override
     public void startLoading() {
         state = STATE_LOADING;
-        removeAllViews();
+        removeAllStateViewInLayout();
         addView(stateViewHolder.loadingView);
     }
 
     @Override
     public void stopLoading() {
         state = STATE_DEFAULT;
-        removeAllViews();
+        removeAllStateViewInLayout();
         addView(dataView);
     }
 
     @Override
     public void error() {
         state = STATE_ERROR;
-        removeAllViews();
+        removeAllStateViewInLayout();
         addView(stateViewHolder.errorView);
     }
 
     @Override
     public void empty() {
         state = STATE_EMPTY;
-        removeAllViews();
+        removeAllStateViewInLayout();
         addView(stateViewHolder.emptyView);
+    }
+
+    private void removeAllStateViewInLayout(){
+        removeViewInLayout(dataView);
+        removeViewInLayout(stateViewHolder.loadingView);
+        removeViewInLayout(stateViewHolder.errorView);
+        removeViewInLayout(stateViewHolder.emptyView);
     }
 }
