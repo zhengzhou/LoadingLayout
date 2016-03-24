@@ -16,7 +16,12 @@
         </activity>
 
         <activity android:name=".SimpleLoadingActivity"/>
-        <activity android:name=".NestedLoadingActivity"/>
+        <activity android:name=".NestedLoadingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".NestedHorizontalLoadingActivity"/>
 
     </application>
