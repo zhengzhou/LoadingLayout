@@ -1,0 +1,17 @@
+<resources>
+    <declare-styleable name="LoadingLayout">
+        <attr name="ll__LoadingView" format="reference" />
+        <attr name="ll__EmptyView" format="reference" />
+        <attr name="ll__ErrorView" format="reference" />
+        <attr name="ll__LoadStartView" format="reference" />
+        <attr name="ll__LoadEndView" format="reference" />
+    </declare-styleable>
+
+    <style name="ll__Default_Style">
+        <item name="ll__LoadingView">@layout/ll__loading</item>
+        <item name="ll__EmptyView">@layout/ll__empty</item>
+        <item name="ll__ErrorView">@layout/ll__error</item>
+        <item name="ll__LoadStartView">@layout/ll__loading</item>
+        <item name="ll__LoadEndView">@layout/ll__loading</item>
+    </style>
+</resources>

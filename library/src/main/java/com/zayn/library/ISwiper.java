@@ -14,6 +14,7 @@ public interface ISwiper {
      * @see ViewCompat#SCROLL_AXIS_VERTICAL
      * @see ViewCompat#SCROLL_AXIS_NONE
      *
+     * default is ViewCompat#SCROLL_AXIS_VERTICAL
      */
     void setScrollAxes(int axes);
 
@@ -23,7 +24,6 @@ public interface ISwiper {
      * @param end direct end. always is loading more action. may at end or bottom position
      */
     void setSwipeEnable(boolean start, boolean end);
-
 
     /**
      * set event listener.
