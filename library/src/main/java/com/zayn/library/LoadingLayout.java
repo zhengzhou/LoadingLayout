@@ -77,7 +77,7 @@ public class LoadingLayout extends FrameLayout implements ILoader{
         addView(stateViewHolder.emptyView);
     }
 
-    private void removeAllStateViewInLayout(){
+    protected void removeAllStateViewInLayout(){
         removeViewInLayout(dataView);
         removeViewInLayout(stateViewHolder.loadingView);
         removeViewInLayout(stateViewHolder.errorView);

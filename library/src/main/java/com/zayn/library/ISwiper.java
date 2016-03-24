@@ -38,7 +38,13 @@ public interface ISwiper {
     void stopSwipeLoading();
 
     /**
-     * set the content offset when scroll the layout.
+     * set the offset when scroll the layout.
      */
     void setSwipeOffset(int start, int end);
+
+    /**
+     * is the content scroll with.
+     * @param scroll is the content scroll with.
+     */
+    void setContentScrollEnable(boolean scroll);
 }

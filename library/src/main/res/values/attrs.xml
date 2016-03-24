@@ -5,6 +5,17 @@
         <attr name="ll__ErrorView" format="reference" />
         <attr name="ll__LoadStartView" format="reference" />
         <attr name="ll__LoadEndView" format="reference" />
+
+        <!-- for nested layout -->
+        <attr name="ll__scroll_axes" format="enum">
+            <enum name="vertical" value="1"/>
+            <enum name="horizontal" value="2"/>
+        </attr>
+        <attr name="ll__start_enable" format="boolean"/>
+        <attr name="ll__end_enable" format="boolean"/>
+        <attr name="ll__start_offset" format="dimension|reference"/>
+        <attr name="ll__end_offset" format="dimension|reference"/>
+
     </declare-styleable>
 
     <style name="ll__Default_Style">
