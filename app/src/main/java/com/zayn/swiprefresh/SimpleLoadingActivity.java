@@ -7,9 +7,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.zayn.library.LoadingLayout;
-import com.zayn.library.NestedLoadingLayout;
-import com.zayn.library.StateViewHolder;
+import com.zayn.loadingview.library.LoadingLayout;
+import com.zayn.loadingview.library.StateViewHolder;
 
 
 /**

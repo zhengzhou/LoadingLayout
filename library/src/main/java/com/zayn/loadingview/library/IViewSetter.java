@@ -1,4 +1,4 @@
-package com.zayn.library;
+package com.zayn.loadingview.library;
 
 import android.support.annotation.LayoutRes;
 import android.view.View;

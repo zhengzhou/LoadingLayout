@@ -1,8 +1,7 @@
-package com.zayn.library;
+package com.zayn.loadingview.library;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Handler;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -74,22 +73,11 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
             scrollTo(scrollerCompat.getCurrX(), scrollerCompat.getCurrY());
             postInvalidate();
         }
-
-    }
-
-    private boolean isVerticalScroll() {
-        return axes == ViewCompat.SCROLL_AXIS_VERTICAL;
     }
 
     @Override
-    public void startLoading() {
-        super.startLoading();
-        stopSwipeLoading();
-    }
-
-    @Override
-    public void stopLoading() {
-        super.stopLoading();
+    protected void onFinishInflate() {
+        super.onFinishInflate();
         if (!startEnable && !endEnable)
             return;
         FrameLayout.LayoutParams startViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -103,12 +91,22 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
         }
         if (startEnable) {
             startViewParam.topMargin = -startOffset;
-            endViewParam.topMargin = endOffset;
             addView(stateViewHolder.loadStartView, startViewParam);
         }
         if (endEnable) {
+            endViewParam.bottomMargin = -endOffset;
             addView(stateViewHolder.loadEndView, endViewParam);
         }
+    }
+
+    private boolean isVerticalScroll() {
+        return axes == ViewCompat.SCROLL_AXIS_VERTICAL;
+    }
+
+    @Override
+    public void startLoading() {
+        super.startLoading();
+        stopSwipeLoading();
     }
 
     @Override
@@ -297,21 +295,23 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
         }
 
         public void onRefresh(final NestedLoadingLayout loadingLayout) {
+
             loadingLayout.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     loadingLayout.stopSwipeLoading();
                 }
-            },3000);
+            },1000);
         }
 
         public void onLoadMore(final NestedLoadingLayout loadingLayout) {
+
             loadingLayout.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     loadingLayout.stopSwipeLoading();
                 }
-            },3000);
+            },1000);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.zayn.library;
+package com.zayn.loadingview.library;
 
 /**
  * Created by zhou on 16-3-24.

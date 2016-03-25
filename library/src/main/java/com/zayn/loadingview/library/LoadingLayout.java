@@ -1,4 +1,4 @@
-package com.zayn.library;
+package com.zayn.loadingview.library;
 
 import android.content.Context;
 import android.util.AttributeSet;

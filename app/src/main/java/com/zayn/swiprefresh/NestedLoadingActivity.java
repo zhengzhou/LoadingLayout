@@ -1,12 +1,10 @@
 package com.zayn.swiprefresh;
 
 import android.os.Bundle;
-import android.support.v4.view.NestedScrollingParent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.zayn.library.LoadingLayout;
-import com.zayn.library.NestedLoadingLayout;
+import com.zayn.loadingview.library.NestedLoadingLayout;
 
 public class NestedLoadingActivity extends AppCompatActivity {
 

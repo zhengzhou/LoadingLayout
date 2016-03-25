@@ -1,4 +1,4 @@
-package com.zayn.library;
+package com.zayn.loadingview.library;
 
 /**
  * loader at begin load.

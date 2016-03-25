@@ -11,6 +11,7 @@
             <enum name="vertical" value="1"/>
             <enum name="horizontal" value="2"/>
         </attr>
+        <attr name="ll__content_scroll_enable" format="boolean"/>
         <attr name="ll__start_enable" format="boolean"/>
         <attr name="ll__end_enable" format="boolean"/>
         <attr name="ll__start_offset" format="dimension|reference"/>
