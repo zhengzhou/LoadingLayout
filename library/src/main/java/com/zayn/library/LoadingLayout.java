@@ -19,7 +19,7 @@ public class LoadingLayout extends FrameLayout implements ILoader{
     public static final int STATE_EMPTY = 2;
     public static final int STATE_ERROR = 3;
 
-    protected int state = STATE_DEFAULT;
+    private int state = STATE_DEFAULT;
     protected StateViewHolder stateViewHolder;
     protected View dataView;
 
@@ -82,5 +82,9 @@ public class LoadingLayout extends FrameLayout implements ILoader{
         removeViewInLayout(stateViewHolder.loadingView);
         removeViewInLayout(stateViewHolder.errorView);
         removeViewInLayout(stateViewHolder.emptyView);
+    }
+
+    public int getState() {
+        return state;
     }
 }
