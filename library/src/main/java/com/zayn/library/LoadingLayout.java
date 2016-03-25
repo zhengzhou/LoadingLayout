@@ -40,6 +40,10 @@ public class LoadingLayout extends FrameLayout implements ILoader{
         this.stateViewHolder = viewHolder;
     }
 
+    public StateViewHolder getStateViewHolder() {
+        return stateViewHolder;
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();

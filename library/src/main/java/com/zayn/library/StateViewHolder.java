@@ -6,6 +6,7 @@ import android.support.annotation.LayoutRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * one loadLayout map one stateViewHolder.
@@ -42,51 +43,69 @@ public class StateViewHolder implements IViewSetter {
 
     @Override
     public void setLoadingView(View view) {
-        loadingView = view;
+        loadingView = tryReplaceView(loadingView, view);
     }
 
     @Override
     public void setErrorView(View view) {
-        errorView = view;
+        errorView = tryReplaceView(errorView, view);
     }
 
     @Override
     public void setEmptyView(View view) {
-        emptyView = view;
+        emptyView = tryReplaceView(emptyView, view);
     }
 
     @Override
     public void setLoadStartView(View view) {
-        loadStartView = view;
+        loadStartView = tryReplaceView(loadStartView, view);
     }
 
     @Override
     public void setLoadEndView(View view) {
-        loadEndView = view;
+        loadEndView = tryReplaceView(loadEndView, view);
     }
 
     @Override
     public void setLoadingView(@LayoutRes int layoutRes) {
-        loadingView = inflater.inflate(layoutRes, null);
+        setLoadingView(inflater.inflate(layoutRes, null));
     }
 
     @Override
     public void setErrorView(@LayoutRes int layoutRes) {
-        errorView = inflater.inflate(layoutRes, null);
+        errorView = tryReplaceView(errorView, inflater.inflate(layoutRes, null));
     }
 
     @Override
     public void setEmptyView(@LayoutRes int layoutRes) {
-        emptyView = inflater.inflate(layoutRes, null);
+        emptyView = tryReplaceView(emptyView, inflater.inflate(layoutRes, null));
     }
 
     @Override
     public void setLoadStartView(@LayoutRes int layoutRes) {
-        loadStartView = inflater.inflate(layoutRes, null);
+        loadStartView = tryReplaceView(loadStartView, inflater.inflate(layoutRes, null));
     }
 
     @Override
     public void setLoadEndView(@LayoutRes int layoutRes) {
-        loadEndView = inflater.inflate(layoutRes, null);
+        loadEndView = tryReplaceView(loadEndView, inflater.inflate(layoutRes, null));
+    }
+
+    /**
+     * if old view already attached to ParentLayout
+     * remove the old view from parent, and add the new one.
+     * @param old old view if have. may be null
+     * @param news the new view.
+     * @return the new view.
+     */
+    private View tryReplaceView(View old, View news){
+        if (old != null) {
+            if (old.getParent() != null) {
+                ViewGroup parent = (ViewGroup) old.getParent();
+                parent.removeView(old);
+                parent.addView(news);
+            }
+        }
+        return news;
     }
 }
