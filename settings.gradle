@@ -1,1 +1,1 @@
-include ':app', ':library', ':loadingview.ui'
+include ':sample', ':loadingview.library', ':loadingview.ui'
