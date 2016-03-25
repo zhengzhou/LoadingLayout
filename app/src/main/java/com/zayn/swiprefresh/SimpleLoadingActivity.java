@@ -48,6 +48,8 @@ public class SimpleLoadingActivity extends AppCompatActivity {
         stateViewHolder.setLoadingView(R.layout.custom_loding);
         stateViewHolder.setEmptyView(R.layout.custom_empty);
         stateViewHolder.setErrorView(R.layout.custom_error);
+        loadingLayout.startLoading();
+
     }
 
     @Override
