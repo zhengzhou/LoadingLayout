@@ -38,6 +38,10 @@ public class PullLoadView extends View {
         path = new Path();
     }
 
+    public void setMaxOffset(int maxOffset) {
+        this.maxOffset = maxOffset;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -77,5 +81,6 @@ public class PullLoadView extends View {
     void reset(){
         path.reset();
         offsetScroll = 0;
+        invalidate();
     }
 }

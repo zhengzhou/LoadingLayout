@@ -10,7 +10,7 @@
         <item name="ll__content_scroll_enable">false</item>
         <item name="ll__start_enable">true</item>
         <item name="ll__end_enable">false</item>
-        <item name="ll__start_offset">80dp</item>
+        <item name="ll__start_offset">180dp</item>
         <item name="ll__end_offset">80dp</item>
     </style>
 </resources>
