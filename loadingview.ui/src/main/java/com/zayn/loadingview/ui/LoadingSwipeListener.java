@@ -48,11 +48,17 @@ public class LoadingSwipeListener implements OnSwipeLoadListener {
     }
 
     @Override
-    public void onPageScrollStateChanged(NestedLoadingLayout loadingLayout, int place, int state) {
+    public void onPageScrollStateChanged(final NestedLoadingLayout loadingLayout, int place, int state) {
         JLog.d("state change:" + state);
         this.state = state;
         if (NestedLoadingLayout.SCROLL_STATE_WAITING == state) {
             loadView.doLoading();
+            loadingLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadingLayout.stopSwipeLoading();
+                }
+            }, 300);
         } else if (NestedLoadingLayout.SCROLL_STATE_IDLE == state) {
             loadView.reset();
         }
@@ -60,10 +66,11 @@ public class LoadingSwipeListener implements OnSwipeLoadListener {
 
     @Override
     public void onScrolled(NestedLoadingLayout loadingLayout, int place, float positionOffset, int positionOffsetPixels) {
-        if (NestedLoadingLayout.SCROLL_STATE_DRAGGING == state || NestedLoadingLayout.SCROLL_STATE_SETTLING == state)
+        if (NestedLoadingLayout.SCROLL_STATE_DRAGGING == state
+                || NestedLoadingLayout.SCROLL_STATE_SETTLING == state)
             if (place == this.place) {
                 JLog.d("currentScrollOffset: " + positionOffsetPixels);
-                loadView.doScroll(-positionOffsetPixels / 2);
+                loadView.doScroll(-positionOffsetPixels);
             }
     }
 }

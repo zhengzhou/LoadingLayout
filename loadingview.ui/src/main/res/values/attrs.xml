@@ -1,5 +1,10 @@
 <resources>
 
+    <declare-styleable name="ll_Pull_Refresh_View">
+        <attr name="ll__ViewRadius" format="dimension|reference"/>
+        <attr name="ll__ViewColor" format="color|reference"/>
+    </declare-styleable>
+
     <style name="ll__Simple_Load_Style">
         <item name="ll__LoadingView">@layout/ll__loading</item>
         <item name="ll__EmptyView">@layout/ll__empty</item>
@@ -10,7 +15,7 @@
         <item name="ll__content_scroll_enable">false</item>
         <item name="ll__start_enable">true</item>
         <item name="ll__end_enable">false</item>
-        <item name="ll__start_offset">180dp</item>
+        <item name="ll__start_offset">120dp</item>
         <item name="ll__end_offset">80dp</item>
     </style>
 </resources>

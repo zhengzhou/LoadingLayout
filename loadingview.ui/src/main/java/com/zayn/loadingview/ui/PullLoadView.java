@@ -1,10 +1,11 @@
 package com.zayn.loadingview.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,7 @@ public class PullLoadView extends View {
     private Path path;
 
     private int maxOffset = 200;
+    private int radius = 0;
 
     public PullLoadView(Context context) {
         this(context, null);
@@ -32,8 +34,12 @@ public class PullLoadView extends View {
 
     public PullLoadView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ll_Pull_Refresh_View, defStyleAttr, R.style.ll__Simple_Load_Style);
+        int color = a.getColor(R.styleable.ll_Pull_Refresh_View_ll__ViewColor, 0xffFF4081);
+        radius = a.getDimensionPixelSize(R.styleable.ll_Pull_Refresh_View_ll__ViewRadius, 100);
+        a.recycle();
         circlePaint = new Paint();
-        circlePaint.setColor(0xffFF4081);
+        circlePaint.setColor(color);//set color
         circlePaint.setAntiAlias(true);
         path = new Path();
     }
@@ -47,7 +53,7 @@ public class PullLoadView extends View {
         super.onDraw(canvas);
         if(offsetScroll > 0) {
             int centerX = getWidth() / 2;
-            canvas.drawCircle(centerX, offsetScroll, offsetScroll / 3, circlePaint);
+            canvas.drawCircle(centerX, offsetScroll, Math.min(radius, offsetScroll / 3), circlePaint);
 
             if(maxOffset - offsetScroll > 10)
                 canvas.drawPath(path, circlePaint);
