@@ -1,0 +1,16 @@
+<resources>
+
+    <style name="ll__Simple_Load_Style">
+        <item name="ll__LoadingView">@layout/ll__loading</item>
+        <item name="ll__EmptyView">@layout/ll__empty</item>
+        <item name="ll__ErrorView">@layout/ll__error</item>
+        <item name="ll__LoadStartView">@layout/ll__custom_pull_load_view</item>
+        <item name="ll__LoadEndView">@layout/ll__loading</item>
+
+        <item name="ll__content_scroll_enable">false</item>
+        <item name="ll__start_enable">true</item>
+        <item name="ll__end_enable">false</item>
+        <item name="ll__start_offset">80dp</item>
+        <item name="ll__end_offset">80dp</item>
+    </style>
+</resources>

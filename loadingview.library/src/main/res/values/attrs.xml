@@ -27,7 +27,7 @@
         <item name="ll__LoadEndView">@layout/ll__loading</item>
 
 
-        <item name="ll__start_offset">100dp</item>
-        <item name="ll__end_offset">100dp</item>
+        <item name="ll__start_offset">80dp</item>
+        <item name="ll__end_offset">80dp</item>
     </style>
 </resources>

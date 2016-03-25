@@ -6,9 +6,11 @@
 
     <com.zayn.loadingview.library.NestedLoadingLayout
         android:id="@+id/loadLayout"
+        style="@style/ll__Simple_Load_Style"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        >
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -72,24 +74,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RadioGroup
-            android:id="@+id/radio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <RadioButton
-                android:id="@+id/radioScroll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="scroll content"
-                />
-            <RadioButton
-                android:id="@+id/radioPin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="pin content"
-                />
-        </RadioGroup>
     </LinearLayout>
 </LinearLayout>

@@ -91,6 +91,14 @@ public class StateViewHolder implements IViewSetter {
         loadEndView = tryReplaceView(loadEndView, inflater.inflate(layoutRes, null));
     }
 
+    public View getLoadStartView() {
+        return loadStartView;
+    }
+
+    public View getLoadEndView() {
+        return loadEndView;
+    }
+
     /**
      * if old view already attached to ParentLayout
      * remove the old view from parent, and add the new one.
