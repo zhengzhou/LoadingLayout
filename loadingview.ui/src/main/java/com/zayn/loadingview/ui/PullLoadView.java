@@ -3,9 +3,10 @@ package com.zayn.loadingview.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.support.v4.view.ViewCompat;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -17,8 +18,9 @@ import com.zayn.loadingview.library.NestedLoadingLayout;
  */
 public class PullLoadView extends View {
 
-    private int offsetScroll = 0;
+    private float offsetScroll = 0;
     private Paint circlePaint;
+    private Paint pathPaint;
     private Path path;
 
     private int maxOffset = 200;
@@ -38,9 +40,14 @@ public class PullLoadView extends View {
         int color = a.getColor(R.styleable.ll_Pull_Refresh_View_ll__ViewColor, 0xffFF4081);
         radius = a.getDimensionPixelSize(R.styleable.ll_Pull_Refresh_View_ll__ViewRadius, 100);
         a.recycle();
+        pathPaint = new Paint();
+        pathPaint.setColor(Color.BLACK);
+        pathPaint.setAntiAlias(true);
         circlePaint = new Paint();
         circlePaint.setColor(color);//set color
         circlePaint.setAntiAlias(true);
+        //circlePaint.setShader(Shader)
+//        circlePaint.setShadowLayer(3, 2, 1, Color.WHITE);
         path = new Path();
     }
 
@@ -52,13 +59,15 @@ public class PullLoadView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(offsetScroll > 0) {
-            int centerX = getWidth() / 2;
-            canvas.drawCircle(centerX, offsetScroll, Math.min(radius, offsetScroll / 3), circlePaint);
-
             if(maxOffset - offsetScroll > 10)
                 canvas.drawPath(path, circlePaint);
+
+            int centerX = getWidth() / 2;
+            canvas.drawCircle(centerX, offsetScroll, Math.min(radius, offsetScroll / 3), circlePaint);
         }
     }
+
+    float currentRadius = 0;
 
     void doScroll(int offset){
         Log.d(NestedLoadingLayout.TAG, "offsetScroll :"+offsetScroll);
@@ -74,8 +83,21 @@ public class PullLoadView extends View {
 
         path.reset();
         path.moveTo(start, 0);
-        path.lineTo(width / 2, offsetScroll);
-        path.lineTo(width - start, 0);
+
+        currentRadius = Math.min(radius, offsetScroll / 3);
+
+//        float x = (width/2-start) * offsetScroll/(2* offsetScroll + Math.min(radius, offsetScroll / 3));
+        float y = (float) Math.sqrt(currentRadius* currentRadius + offsetScroll * offsetScroll /4) - offsetScroll/2;
+        float x = (float) Math.sqrt(y*offsetScroll);
+        float x1 = width/2 - x;
+        float x2 = width/2 + x;
+        float y1 = y + offsetScroll;
+
+        path.cubicTo(width/4 + start/2, 0, width/4 + start/2 + x/2, offsetScroll/2, x1, y1);
+        path.lineTo(x2, y1);
+        //path.lineTo(width / 2, offsetScroll);
+//        path.lineTo(width - start, 0);
+        path.cubicTo(width - width/4 - start/2 - x/2, offsetScroll/2, width*3/4 - start/2, 0, width - start, 0);
         path.close();
         invalidate();
     }
