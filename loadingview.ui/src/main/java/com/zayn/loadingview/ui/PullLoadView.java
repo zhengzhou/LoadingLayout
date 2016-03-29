@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Shader;
+import android.graphics.drawable.Animatable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -16,15 +16,17 @@ import com.zayn.loadingview.library.NestedLoadingLayout;
 /**
  * Created by zhou on 16-3-25.
  */
-public class PullLoadView extends View {
+public class PullLoadView extends View implements Animatable {
+
+    private int maxOffset = 200;
+    private int radius = 0;
+    private float resistance = 1.6f;
 
     private float offsetScroll = 0;
     private Paint circlePaint;
     private Paint pathPaint;
     private Path path;
-
-    private int maxOffset = 200;
-    private int radius = 0;
+    private boolean isRunning = false;
 
     public PullLoadView(Context context) {
         this(context, null);
@@ -75,9 +77,9 @@ public class PullLoadView extends View {
         if(offsetScroll >= maxOffset || offsetScroll < 0){
             return;
         }
+        offsetScroll += offset;
 
         final int width = getWidth();
-        offsetScroll += offset;
 
         float start = (offsetScroll * width * 1.0f) / (maxOffset * 2.0f);
 
@@ -86,7 +88,6 @@ public class PullLoadView extends View {
 
         currentRadius = Math.min(radius, offsetScroll / 3);
 
-//        float x = (width/2-start) * offsetScroll/(2* offsetScroll + Math.min(radius, offsetScroll / 3));
         float y = (float) Math.sqrt(currentRadius* currentRadius + offsetScroll * offsetScroll /4) - offsetScroll/2;
         float x = (float) Math.sqrt(y*offsetScroll);
         float x1 = width/2 - x;
@@ -95,20 +96,35 @@ public class PullLoadView extends View {
 
         path.cubicTo(width/4 + start/2, 0, width/4 + start/2 + x/2, offsetScroll/2, x1, y1);
         path.lineTo(x2, y1);
-        //path.lineTo(width / 2, offsetScroll);
-//        path.lineTo(width - start, 0);
         path.cubicTo(width - width/4 - start/2 - x/2, offsetScroll/2, width*3/4 - start/2, 0, width - start, 0);
         path.close();
         invalidate();
     }
 
     void doLoading(){
-
+        if(!isRunning){
+            start();
+        }
     }
 
     void reset(){
         path.reset();
         offsetScroll = 0;
         invalidate();
+    }
+
+    @Override
+    public void start() {
+        isRunning = true;
+    }
+
+    @Override
+    public void stop() {
+        isRunning = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return isRunning;
     }
 }

@@ -1,6 +1,5 @@
 package com.zayn.loadingview.ui;
 
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
@@ -26,7 +25,7 @@ public class LoadingSwipeListener implements OnSwipeLoadListener {
      */
     public void bindPullLoadView(NestedLoadingLayout loadingLayout, int place) {
         loadingLayout.setOnSwipeListener(this);
-        View loadView = null;
+        View loadView;
         if (place == Gravity.START) {
             loadView = loadingLayout.getStateViewHolder().getLoadStartView();
         }else {

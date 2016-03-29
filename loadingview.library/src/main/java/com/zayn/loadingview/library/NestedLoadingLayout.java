@@ -177,23 +177,20 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
             }
             //反方向的滑动
             if (scrollDirect == Gravity.START && dy > 0 && currentScrollOffset < 0) {
-                //if (Math.abs(currentScrollOffset) < startOffset) {
-                    if (contentScroll) {
-                        scrollBy(0, (int) (dy/resistance));
-                        consumed[1] = (dy);
-                    }
-                    currentScrollOffset += dy;
-                    swipeLoadListener.onScrolled(this, Gravity.START, getScrollY() / startOffset, dy);
-                //}
-            } else if (scrollDirect == Gravity.END && dy < 0 && currentScrollOffset > 0) {
-                if (Math.abs(currentScrollOffset) < endOffset) {
-                    if (contentScroll) {
-                        scrollBy(0, (int) (dy/resistance));
-                        consumed[1] = dy;
-                    }
-                    currentScrollOffset += dy;
-                    swipeLoadListener.onScrolled(this, Gravity.END, getScrollY() / endOffset, dy);
+                if (contentScroll) {
+                    scrollBy(0, (int) (dy / resistance));
+                    consumed[1] = (dy);
                 }
+                currentScrollOffset += dy;
+                swipeLoadListener.onScrolled(this, Gravity.START, getScrollY() / startOffset, dy);
+            } else if (scrollDirect == Gravity.END && dy < 0 && currentScrollOffset > 0) {
+                if (contentScroll) {
+                    scrollBy(0, (int) (dy / resistance));
+                    consumed[1] = dy;
+                }
+                currentScrollOffset += dy;
+                swipeLoadListener.onScrolled(this, Gravity.END, getScrollY() / endOffset, dy);
+
             }
         } else {
             // TODO: 16-3-25 process horizontal scroll...
