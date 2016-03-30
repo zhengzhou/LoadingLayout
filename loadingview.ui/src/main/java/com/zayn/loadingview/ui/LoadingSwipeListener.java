@@ -57,7 +57,7 @@ public class LoadingSwipeListener implements OnSwipeLoadListener {
                 public void run() {
                     loadingLayout.stopSwipeLoading();
                 }
-            }, 300);
+            }, 3000);
         } else if (NestedLoadingLayout.SCROLL_STATE_IDLE == state) {
             loadView.reset();
         }

@@ -2,6 +2,7 @@ package com.zayn.loadingview.library;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -69,6 +70,9 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
         a.recycle();
         parentHelper = new NestedScrollingParentHelper(this);
         scrollerCompat = ScrollerCompat.create(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setNestedScrollingEnabled(false);
+        }
     }
 
     @Override

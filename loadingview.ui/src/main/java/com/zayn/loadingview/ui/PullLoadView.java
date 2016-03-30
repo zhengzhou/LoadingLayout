@@ -3,7 +3,6 @@ package com.zayn.loadingview.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Animatable;
@@ -23,10 +22,14 @@ public class PullLoadView extends View implements Animatable {
     private float resistance = 1.6f;
 
     private float offsetScroll = 0;
-    private Paint circlePaint;
-    private Paint pathPaint;
+    private Paint shapePaint;
+    private Paint loadingPaint;
     private Path path;
+    private Path outLine;
     private boolean isRunning = false;
+    private int progress = 0;
+
+    private static int[] colors = {0xFF2095F2, 0xFFCCDB38, 0xFF4BAE4F, 0xFF6639B6};
 
     public PullLoadView(Context context) {
         this(context, null);
@@ -42,19 +45,26 @@ public class PullLoadView extends View implements Animatable {
         int color = a.getColor(R.styleable.ll_Pull_Refresh_View_ll__ViewColor, 0xffFF4081);
         radius = a.getDimensionPixelSize(R.styleable.ll_Pull_Refresh_View_ll__ViewRadius, 100);
         a.recycle();
-        pathPaint = new Paint();
-        pathPaint.setColor(Color.BLACK);
-        pathPaint.setAntiAlias(true);
-        circlePaint = new Paint();
-        circlePaint.setColor(color);//set color
-        circlePaint.setAntiAlias(true);
-        //circlePaint.setShader(Shader)
-//        circlePaint.setShadowLayer(3, 2, 1, Color.WHITE);
+        loadingPaint = new Paint();
+        loadingPaint.setAntiAlias(true);
+        shapePaint = new Paint();
+        shapePaint.setColor(color);//set color
+        shapePaint.setAntiAlias(true);
+
         path = new Path();
+        outLine = new Path();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        outLine.reset();
+        outLine.addCircle(getWidth()/2, maxOffset, radius, Path.Direction.CW);
     }
 
     public void setMaxOffset(int maxOffset) {
         this.maxOffset = maxOffset;
+
     }
 
     @Override
@@ -62,10 +72,12 @@ public class PullLoadView extends View implements Animatable {
         super.onDraw(canvas);
         if(offsetScroll > 0) {
             if(maxOffset - offsetScroll > 10)
-                canvas.drawPath(path, circlePaint);
+                canvas.drawPath(path, shapePaint);
 
             int centerX = getWidth() / 2;
-            canvas.drawCircle(centerX, offsetScroll, Math.min(radius, offsetScroll / 3), circlePaint);
+            canvas.drawCircle(centerX, offsetScroll, Math.min(radius, offsetScroll / 3), shapePaint);
+
+            drawConcentric(canvas);
         }
     }
 
@@ -75,9 +87,14 @@ public class PullLoadView extends View implements Animatable {
         Log.d(NestedLoadingLayout.TAG, "offsetScroll :"+offsetScroll);
 
         if(offsetScroll >= maxOffset || offsetScroll < 0){
+
             return;
         }
-        offsetScroll += offset;
+        if(offsetScroll + offset >= maxOffset) {
+            offsetScroll = maxOffset;
+        }else {
+            offsetScroll += offset;
+        }
 
         final int width = getWidth();
 
@@ -111,11 +128,33 @@ public class PullLoadView extends View implements Animatable {
         path.reset();
         offsetScroll = 0;
         invalidate();
+        stop();
+    }
+
+    void drawConcentric(Canvas canvas){
+        if (isRunning) {
+            int flag = canvas.save();
+            canvas.clipPath(outLine);
+            int centerX = getWidth() / 2;
+            int interval = 10;
+            for (int color : colors) {
+                loadingPaint.setColor(color);
+//                JLog.d("" + progress +".  "+ interval );
+                if (progress - interval > 0) {
+                    canvas.drawCircle(centerX, maxOffset, (progress - interval) % (radius + 10), loadingPaint);
+                }
+                interval += radius/4;
+            }
+            progress += 2;
+            canvas.restoreToCount(flag);
+            postInvalidateDelayed(16);
+        }
     }
 
     @Override
     public void start() {
         isRunning = true;
+        postInvalidate();
     }
 
     @Override
@@ -127,4 +166,5 @@ public class PullLoadView extends View implements Animatable {
     public boolean isRunning() {
         return isRunning;
     }
+
 }
