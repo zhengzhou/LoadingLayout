@@ -55,7 +55,7 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
     }
 
     public NestedLoadingLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.loadingLayoutStyle);
     }
 
     public NestedLoadingLayout(Context context, AttributeSet attrs, int defStyleAttr) {

@@ -5,7 +5,7 @@
         <attr name="ll__ViewColor" format="color|reference"/>
     </declare-styleable>
 
-    <style name="ll__Simple_Load_Style">
+    <style name="ll__Simple_Load_Style" parent="@style/ll__Default_Style">
         <item name="ll__LoadingView">@layout/ll__loading</item>
         <item name="ll__EmptyView">@layout/ll__empty</item>
         <item name="ll__ErrorView">@layout/ll__error</item>

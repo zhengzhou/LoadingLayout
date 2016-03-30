@@ -1,4 +1,7 @@
 <resources>
+
+    <attr name="loadingLayoutStyle" format="reference"/>
+
     <declare-styleable name="LoadingLayout">
         <attr name="ll__LoadingView" format="reference" />
         <attr name="ll__EmptyView" format="reference" />

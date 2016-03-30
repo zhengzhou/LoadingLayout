@@ -8,6 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:textSize">18sp</item>
+
+        <item name="loadingLayoutStyle">@style/LoadStyle</item>
     </style>
 
+    <style name="LoadStyle" parent="@style/ll__Default_Style">
+        <item name="ll__LoadingView">@layout/custom_loding</item>
+    </style>
 </resources>

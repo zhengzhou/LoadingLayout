@@ -28,7 +28,7 @@ public class LoadingLayout extends FrameLayout implements ILoader{
     }
 
     public LoadingLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.loadingLayoutStyle);
     }
 
     public LoadingLayout(Context context, AttributeSet attrs, int defStyleAttr) {
