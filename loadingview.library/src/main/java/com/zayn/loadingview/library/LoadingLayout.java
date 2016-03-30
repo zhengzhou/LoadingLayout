@@ -33,6 +33,10 @@ public class LoadingLayout extends FrameLayout implements ILoader{
 
     public LoadingLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr);
+    }
+
+    protected void init(Context context, AttributeSet attrs, int defStyleAttr){
         setStateViewHolder(new StateViewHolder(context, attrs, defStyleAttr));
     }
 

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.zayn.swiprefresh.MainActivity">
+    android:orientation="vertical"
+    tools:context="com.zayn.swiprefresh.MainActivity"
+    >
 
 
     <com.zayn.loadingview.library.NestedLoadingLayout
         android:id="@+id/loadLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         app:ll__start_enable="false"
         app:ll__end_enable="false"
         >
@@ -94,6 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startLoad"
+            android:textSize="12sp"
             android:text="begin"/>
 
 
@@ -101,6 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="stopLoad"
+            android:textSize="12sp"
             android:text="finish"/>
 
 
@@ -108,6 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="loadError"
+            android:textSize="12sp"
             android:text="error"/>
 
 
@@ -115,10 +121,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="loadEmpty"
+            android:textSize="12sp"
             android:text="empty"/>
 
 
     </LinearLayout>
 
 
-</RelativeLayout>
+</LinearLayout>

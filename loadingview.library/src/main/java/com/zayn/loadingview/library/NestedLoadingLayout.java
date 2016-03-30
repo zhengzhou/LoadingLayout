@@ -2,7 +2,6 @@ package com.zayn.loadingview.library;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -23,13 +22,9 @@ import com.jiongbull.jlog.JLog;
  * <p/>
  * Created by zhou on 16-3-24.
  */
-public class NestedLoadingLayout extends LoadingLayout implements NestedScrollingParent, ISwiper {
+public class NestedLoadingLayout extends NestAsChildLayout implements NestedScrollingParent, ISwiper {
 
     public static final String TAG = "LoadingLayout";
-    public static final boolean Debug = BuildConfig.DEBUG;
-
-//    static final int STATE_START_LOADING = 0x10;
-//    static final int STATE_END_LOADING = 0x11;
 
     public static final int SCROLL_STATE_IDLE = 0;
     public static final int SCROLL_STATE_DRAGGING = 1;
@@ -60,6 +55,11 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
 
     public NestedLoadingLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        super.init(context, attrs, defStyleAttr);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadingLayout, defStyleAttr, R.style.ll__Default_Style);
         axes = a.getInt(R.styleable.LoadingLayout_ll__scroll_axes, 1) == 1 ? ViewCompat.SCROLL_AXIS_VERTICAL : ViewCompat.SCROLL_AXIS_HORIZONTAL;
         startEnable = a.getBoolean(R.styleable.LoadingLayout_ll__start_enable, true);
@@ -70,9 +70,8 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
         a.recycle();
         parentHelper = new NestedScrollingParentHelper(this);
         scrollerCompat = ScrollerCompat.create(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setNestedScrollingEnabled(false);
-        }
+        setNestedScrollingEnabled(true);
+
     }
 
     @Override
@@ -167,11 +166,16 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
     }
 
     public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+        startNestedScroll(axes & nestedScrollAxes);
         if (!isStateSafe()) return;
         parentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
     }
 
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        if(isNestedScrollingEnabled()) {
+            dispatchNestedPreScroll(dx, dy, consumed, null);
+        }
+
         if (!isStateSafe()) return;
         if (isVerticalScroll()) {
             if (scrollState == SCROLL_STATE_IDLE) {
@@ -183,14 +187,14 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
             if (scrollDirect == Gravity.START && dy > 0 && currentScrollOffset < 0) {
                 if (contentScroll) {
                     scrollBy(0, (int) (dy / resistance));
-                    consumed[1] = (dy);
+                    consumed[1] += (dy);
                 }
                 currentScrollOffset += dy;
                 swipeLoadListener.onScrolled(this, Gravity.START, getScrollY() / startOffset, dy);
             } else if (scrollDirect == Gravity.END && dy < 0 && currentScrollOffset > 0) {
                 if (contentScroll) {
                     scrollBy(0, (int) (dy / resistance));
-                    consumed[1] = dy;
+                    consumed[1] += dy;
                 }
                 currentScrollOffset += dy;
                 swipeLoadListener.onScrolled(this, Gravity.END, getScrollY() / endOffset, dy);
@@ -205,6 +209,10 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
 
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
                                int dxUnconsumed, int dyUnconsumed) {
+        if(isNestedScrollingEnabled()){
+            dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
+        }
+
         if (!isStateSafe()) return;
 
         if (isVerticalScroll() && dyUnconsumed != 0) {
@@ -253,6 +261,7 @@ public class NestedLoadingLayout extends LoadingLayout implements NestedScrollin
     }
 
     public void onStopNestedScroll(View target) {
+        stopNestedScroll();
         if (!isStateSafe()) return;
         if (scrollState != SCROLL_STATE_WAITING) {
             scrollState = SCROLL_STATE_SETTLING;
