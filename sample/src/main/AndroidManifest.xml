@@ -9,22 +9,28 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SimpleLoadingActivity" />
+        <activity android:name=".SimpleLoadingActivity"
+            android:label="simple loading"
+            />
         <activity
             android:name=".CustomLoadingActivity"
-            android:label="simpleLoading" />
+            android:label="customLoading" />
         <activity
             android:name=".CustomRefreshActivity"
-            android:label="NestedLoading">
+            android:label="customRefresh">
         </activity>
         <activity
             android:name=".SimpleRefreshActivity"
-            android:label="NestedLoading"></activity>
+            android:label="SimpleRefresh">
+
+        </activity>
         <activity android:name=".NestedHorizontalLoadingActivity" />
         <activity
             android:name=".NestedParentActivity"
-            android:label="@string/title_activity_scrolling"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label="with Nested Parent"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
         <activity
             android:name=".FirstActivity"
             android:label="@string/title_activity_first"
@@ -32,7 +38,6 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

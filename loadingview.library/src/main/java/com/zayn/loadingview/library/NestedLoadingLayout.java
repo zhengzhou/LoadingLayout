@@ -1,7 +1,9 @@
 package com.zayn.loadingview.library;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -40,6 +42,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     private int startOffset, endOffset;
     private ScrollerCompat scrollerCompat;
     private int currentScrollOffset;
+    private int realScrollOffset;
 
     private int scrollState = SCROLL_STATE_IDLE;
     private int scrollDirect = Gravity.NO_GRAVITY;
@@ -77,18 +80,20 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     @Override
     public void computeScroll() {
         if (scrollerCompat.computeScrollOffset()) {
-            if (contentScroll) {
-                scrollTo(scrollerCompat.getCurrX(), (int) (scrollerCompat.getCurrY()/resistance));
-            }
-            postInvalidate();
+
+
             if (isVerticalScroll()) {
                 JLog.d("currentScrollOffset: " + currentScrollOffset + ".  scrollerCompat.CurrY: " + scrollerCompat.getCurrY());
+                realScrollOffset = (int) ((currentScrollOffset - scrollerCompat.getCurrY())/resistance);
+                ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
 
                 if (scrollDirect == Gravity.START)
                     swipeLoadListener.onScrolled(this, Gravity.START, currentScrollOffset / startOffset, scrollerCompat.getCurrY() - currentScrollOffset);
                 else
                     swipeLoadListener.onScrolled(this, Gravity.END, currentScrollOffset / endOffset, scrollerCompat.getCurrY() - currentScrollOffset);
                 currentScrollOffset = scrollerCompat.getCurrY();
+
+                postInvalidate();
             }
         } else if (scrollState == SCROLL_STATE_SETTLING) {
             finishScroll();
@@ -99,6 +104,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         //reset state when scroll end.
         scrollState = SCROLL_STATE_IDLE;
         currentScrollOffset = 0;
+        realScrollOffset = 0;
         swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);
         scrollDirect = Gravity.NO_GRAVITY;
     }
@@ -106,8 +112,21 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        View startView = null, endView = null;
+        for (int i = 0; i < getChildCount(); i++) {
+            View v = getChildAt(i);
+            LayoutParams layoutParams = (LayoutParams) v.getLayoutParams();
+            if (layoutParams.viewType == LayoutParams.BODY) {
+                dataView = v;
+            } else if(layoutParams.viewType == LayoutParams.START){
+                startView = v;
+            } else if(layoutParams.viewType == LayoutParams.END){
+                endView = v;
+            }
+        }
         if (!startEnable && !endEnable)
             return;
+
         FrameLayout.LayoutParams startViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         FrameLayout.LayoutParams endViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         if (isVerticalScroll()) {
@@ -117,12 +136,16 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             startViewParam.gravity = Gravity.START;
             endViewParam.gravity = Gravity.END;
         }
-        if (startEnable) {
+        if(startView != null){
+            stateViewHolder.loadStartView = startView;
+        }else if (startEnable) {
             if (contentScroll)
                 startViewParam.topMargin = (int) (-startOffset/resistance);
             addView(stateViewHolder.loadStartView, startViewParam);
         }
-        if (endEnable) {
+        if(endView != null) {
+            stateViewHolder.loadEndView = endView;
+        } else if (endEnable) {
             if (contentScroll)
                 endViewParam.bottomMargin = (int) (-endOffset/resistance);
             addView(stateViewHolder.loadEndView, endViewParam);
@@ -192,14 +215,18 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             //反方向的滑动
             if (scrollDirect == Gravity.START && dy > 0 && currentScrollOffset < 0) {
                 if (contentScroll) {
-                    scrollBy(0, (int) (dy / resistance));
+                    //scrollBy(0, (int) (dy / resistance));
+                    realScrollOffset = -(int) (dy / resistance);
+                    ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
                     consumed[1] += (dy);
                 }
                 currentScrollOffset += dy;
                 swipeLoadListener.onScrolled(this, Gravity.START, getScrollY() / startOffset, dy);
             } else if (scrollDirect == Gravity.END && dy < 0 && currentScrollOffset > 0) {
                 if (contentScroll) {
-                    scrollBy(0, (int) (dy / resistance));
+                    //scrollBy(0, (int) (dy / resistance));
+                    realScrollOffset = -(int) (dy / resistance);
+                    ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
                     consumed[1] += dy;
                 }
                 currentScrollOffset += dy;
@@ -249,7 +276,9 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             if (scrollDirect == Gravity.START && startEnable) {
                 if (Math.abs(currentScrollOffset) < startOffset) {
                     if (contentScroll) {
-                        scrollBy(0, (int) (dyUnconsumed / resistance));
+//                        scrollBy(0, (int) (dyUnconsumed / resistance));
+                        realScrollOffset = -(int) (dyUnconsumed / resistance);
+                        ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
                     }
                     currentScrollOffset += dyUnconsumed;
                     swipeLoadListener.onScrolled(this, Gravity.START, currentScrollOffset / startOffset, dyUnconsumed);
@@ -263,7 +292,9 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             if (scrollDirect == Gravity.END && endEnable) {
                 if (Math.abs(currentScrollOffset) < endOffset) {
                     if (contentScroll) {
-                        scrollBy(0, (int) (dyUnconsumed / resistance));
+//                        scrollBy(0, (int) (dyUnconsumed / resistance));
+                        realScrollOffset = -(int) (dyUnconsumed / resistance);
+                        ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
                     }
                     currentScrollOffset += dyUnconsumed;
                     swipeLoadListener.onScrolled(this, Gravity.END, currentScrollOffset / endOffset, dyUnconsumed);
@@ -360,6 +391,62 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     public void setContentScrollEnable(boolean scroll) {
         this.contentScroll = scroll;
         Log.d(TAG, "content enable change");
+    }
+
+
+
+    @Override
+    public LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new LayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        if (p instanceof LayoutParams) {
+            return new LayoutParams((LayoutParams) p);
+        } else if (p instanceof MarginLayoutParams) {
+            return new LayoutParams((MarginLayoutParams) p);
+        }
+        return new LayoutParams(p);
+    }
+
+    @Override
+    protected LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    }
+
+    public static class LayoutParams extends FrameLayout.LayoutParams {
+
+        public static final int START = 1;
+        public static final int END = 2;
+        public static final int BODY = 3;
+
+        int viewType = BODY;
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+            final TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.LoadingLayout_LayoutParams);
+            viewType = a.getInt(R.styleable.LoadingLayout_LayoutParams_ll_viewType, BODY);
+            a.recycle();
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        @TargetApi(Build.VERSION_CODES.KITKAT)
+        public LayoutParams(LayoutParams p) {
+            super(p);
+        }
+
+        public LayoutParams(MarginLayoutParams p) {
+            super(p);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams p) {
+            super(p);
+        }
+
     }
 
     public static class SimpleSwipeLoadListener implements OnSwipeLoadListener {

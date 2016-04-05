@@ -51,9 +51,6 @@ public class LoadingLayout extends FrameLayout implements ILoader{
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if(getChildCount() != 1){
-            throw new IllegalStateException("can only have one direct child");
-        }
         dataView = getChildAt(0);
     }
 

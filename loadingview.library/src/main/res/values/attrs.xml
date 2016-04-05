@@ -22,6 +22,15 @@
 
     </declare-styleable>
 
+
+    <declare-styleable name="LoadingLayout.LayoutParams">
+        <attr name="ll_viewType" format="enum">
+            <enum name="start" value="1"/>
+            <enum name="end" value="2"/>
+            <enum name="body" value="3"/>
+        </attr>
+    </declare-styleable>
+
     <style name="ll__Default_Style">
         <item name="ll__LoadingView">@layout/ll__loading</item>
         <item name="ll__EmptyView">@layout/ll__empty</item>

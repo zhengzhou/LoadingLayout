@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <com.zayn.loadingview.ui.SimpleLoadingView
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_gravity="bottom"
+        />
+
     <com.zayn.loadingview.library.NestedLoadingLayout
         android:id="@+id/loadLayout"
         style="@style/ll__Simple_Load_Style"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:ll__content_scroll_enable="false"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        app:ll__content_scroll_enable="true"
         app:ll__start_enable="true"
-        app:ll__end_enable="false"
-
+        app:ll__end_enable="true"
         >
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:ll_viewType="body">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,11 +47,8 @@
 
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
+
     </com.zayn.loadingview.library.NestedLoadingLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-    </LinearLayout>
-</LinearLayout>
+</FrameLayout>
