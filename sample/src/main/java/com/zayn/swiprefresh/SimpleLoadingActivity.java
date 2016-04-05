@@ -13,7 +13,7 @@ public class SimpleLoadingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_simple_loading);
         loadingLayout = (LoadingLayout) findViewById(R.id.loadLayout);
 
     }

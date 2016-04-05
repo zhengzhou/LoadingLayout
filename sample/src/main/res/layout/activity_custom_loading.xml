@@ -12,7 +12,10 @@
         android:id="@+id/loadLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        app:ll__EmptyView="@layout/custom_empty"
+        app:ll__end_enable="false"
+        app:ll__start_enable="false">
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"

@@ -44,4 +44,12 @@
         android:onClick="gotoCustomRefresh"
         />
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="in nested parent"
+        android:id="@+id/button4"
+        android:onClick="gotoNestedRefresh"
+        />
 </LinearLayout>

@@ -14,15 +14,15 @@
             android:name=".CustomLoadingActivity"
             android:label="simpleLoading" />
         <activity
-            android:name=".CustomNestedLoadingActivity"
+            android:name=".CustomRefreshActivity"
             android:label="NestedLoading">
         </activity>
         <activity
-            android:name=".NestedLoadingActivity"
+            android:name=".SimpleRefreshActivity"
             android:label="NestedLoading"></activity>
         <activity android:name=".NestedHorizontalLoadingActivity" />
         <activity
-            android:name=".ScrollingActivity"
+            android:name=".NestedParentActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity

@@ -11,7 +11,7 @@ import android.view.View;
 import com.zayn.loadingview.library.NestedLoadingLayout;
 import com.zayn.loadingview.ui.LoadingSwipeListener;
 
-public class ScrollingActivity extends AppCompatActivity {
+public class NestedParentActivity extends AppCompatActivity {
 
     NestedLoadingLayout loadingLayout;
 

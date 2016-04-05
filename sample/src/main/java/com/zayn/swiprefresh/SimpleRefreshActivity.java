@@ -2,19 +2,18 @@ package com.zayn.swiprefresh;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.RadioGroup;
 
 import com.zayn.loadingview.library.NestedLoadingLayout;
 
-public class NestedLoadingActivity extends AppCompatActivity {
+public class SimpleRefreshActivity extends AppCompatActivity {
 
     NestedLoadingLayout loadingLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nested);
+        setContentView(R.layout.activity_simple_refresh);
         loadingLayout = (NestedLoadingLayout) findViewById(R.id.loadLayout);
         RadioGroup group = (RadioGroup) findViewById(R.id.radio);
         if(group != null)

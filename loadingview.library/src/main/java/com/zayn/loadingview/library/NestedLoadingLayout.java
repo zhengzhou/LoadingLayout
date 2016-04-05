@@ -35,7 +35,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     private NestedScrollingParentHelper parentHelper;
     private OnSwipeLoadListener swipeLoadListener = new SimpleSwipeLoadListener();
     private int axes = ViewCompat.SCROLL_AXIS_VERTICAL;
-    private boolean contentScroll = true;
+    private boolean contentScroll;
     private boolean startEnable, endEnable;
     private int startOffset, endOffset;
     private ScrollerCompat scrollerCompat;
@@ -91,12 +91,16 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
                 currentScrollOffset = scrollerCompat.getCurrY();
             }
         } else if (scrollState == SCROLL_STATE_SETTLING) {
-            //reset state when scroll end.
-            scrollState = SCROLL_STATE_IDLE;
-            currentScrollOffset = 0;
-            swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);
-            scrollDirect = Gravity.NO_GRAVITY;
+            finishScroll();
         }
+    }
+
+    private void finishScroll(){
+        //reset state when scroll end.
+        scrollState = SCROLL_STATE_IDLE;
+        currentScrollOffset = 0;
+        swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);
+        scrollDirect = Gravity.NO_GRAVITY;
     }
 
     @Override
@@ -236,6 +240,10 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             scrollDirect = distance < 0 ? Gravity.START : Gravity.END;
             swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);
         }
+        if(scrollDirect  == 0){
+            int distance = isVerticalScroll() ? dyUnconsumed : dxUnconsumed;
+            scrollDirect = distance < 0 ? Gravity.START : Gravity.END;
+        }
 
         if (isVerticalScroll() && dyUnconsumed != 0) {
             if (scrollDirect == Gravity.START && startEnable) {
@@ -303,6 +311,8 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
                 swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);
                 scrollerCompat.startScroll(0, currentScrollOffset, 0, -currentScrollOffset, 500);
                 postInvalidate();
+            } else {
+                finishScroll();
             }
         }else{
             swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, scrollState);

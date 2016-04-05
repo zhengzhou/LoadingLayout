@@ -21,7 +21,7 @@ public class CustomLoadingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simple_loading);
+        setContentView(R.layout.activity_custom_loading);
         loadingLayout = (LoadingLayout) findViewById(R.id.loadLayout);
     }
 
