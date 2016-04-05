@@ -12,7 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-
+        app:ll__content_scroll_enable="false"
+        app:ll__start_enable="true"
+        app:ll__end_enable="false"
         >
 
         <android.support.v4.widget.NestedScrollView

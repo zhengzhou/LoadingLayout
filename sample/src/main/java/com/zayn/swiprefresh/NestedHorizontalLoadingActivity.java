@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.zayn.loadingview.library.LoadingLayout;
 
+// TODO: 16-4-5 todo
 public class NestedHorizontalLoadingActivity extends AppCompatActivity {
 
     LoadingLayout loadingLayout;

@@ -13,7 +13,7 @@
     </style>
 
     <style name="LoadStyle" parent="@style/ll__Default_Style">
-        <item name="ll__LoadingView">@layout/custom_loding</item>
+        <item name="ll__LoadingView">@layout/custom_loading</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
