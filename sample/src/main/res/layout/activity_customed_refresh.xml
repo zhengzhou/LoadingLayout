@@ -17,7 +17,6 @@
         style="@style/ll__Simple_Load_Style"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
         app:ll__content_scroll_enable="true"
         app:ll__start_enable="true"
         app:ll__end_enable="true"
