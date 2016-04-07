@@ -33,7 +33,9 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     public static final int SCROLL_STATE_SETTLING = 2;
     public static final int SCROLL_STATE_WAITING = 3;
 
-    private float resistance = 1.6f;
+    private final float resistance = 1.6f;
+    private final int during = 300;
+
     private NestedScrollingParentHelper parentHelper;
     private OnSwipeLoadListener swipeLoadListener = new SimpleSwipeLoadListener();
     private int axes = ViewCompat.SCROLL_AXIS_VERTICAL;
@@ -42,7 +44,6 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     private int startOffset, endOffset;
     private ScrollerCompat scrollerCompat;
     private int currentScrollOffset;
-    private int realScrollOffset;
 
     private int scrollState = SCROLL_STATE_IDLE;
     private int scrollDirect = Gravity.NO_GRAVITY;
@@ -82,10 +83,10 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         if (scrollerCompat.computeScrollOffset()) {
 
             if (isVerticalScroll()) {
-                if(contentScroll) {
+                if (contentScroll) {
                     JLog.d("currentScrollOffset: " + currentScrollOffset + ".  scrollerCompat.CurrY: " + scrollerCompat.getCurrY());
-                    realScrollOffset = (int) ((currentScrollOffset - scrollerCompat.getCurrY()) / resistance);
-                    ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
+                    moveViewTo(0, - scrollerCompat.getCurrY() / resistance);
+
                 }
                 dispatchScrolled(scrollerCompat.getCurrY() - currentScrollOffset);
                 currentScrollOffset = scrollerCompat.getCurrY();
@@ -97,13 +98,13 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         }
     }
 
-    private void finishScroll(){
+    private void finishScroll() {
         //reset state when scroll end.
         scrollState = SCROLL_STATE_IDLE;
         currentScrollOffset = 0;
-        realScrollOffset = 0;
         dispatchScrollStateChanged(scrollDirect, scrollState);
         scrollDirect = Gravity.NO_GRAVITY;
+        moveViewTo(0, 0);
     }
 
     @Override
@@ -115,9 +116,9 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             LayoutParams layoutParams = (LayoutParams) v.getLayoutParams();
             if (layoutParams.viewType == LayoutParams.BODY) {
                 dataView = v;
-            } else if(layoutParams.viewType == LayoutParams.START){
+            } else if (layoutParams.viewType == LayoutParams.START) {
                 startView = v;
-            } else if(layoutParams.viewType == LayoutParams.END){
+            } else if (layoutParams.viewType == LayoutParams.END) {
                 endView = v;
             }
         }
@@ -133,18 +134,18 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             startViewParam.gravity = Gravity.START;
             endViewParam.gravity = Gravity.END;
         }
-        if(startView != null){
+        if (startView != null) {
             stateViewHolder.loadStartView = startView;
-        }else if (startEnable) {
+        } else if (startEnable) {
             if (contentScroll)
-                startViewParam.topMargin = (int) (-startOffset/resistance);
+                startViewParam.topMargin = (int) (-startOffset / resistance);
             addView(stateViewHolder.loadStartView, startViewParam);
         }
-        if(endView != null) {
+        if (endView != null) {
             stateViewHolder.loadEndView = endView;
         } else if (endEnable) {
             if (contentScroll)
-                endViewParam.bottomMargin = (int) (-endOffset/resistance);
+                endViewParam.bottomMargin = (int) (-endOffset / resistance);
             addView(stateViewHolder.loadEndView, endViewParam);
         }
     }
@@ -195,15 +196,16 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
         startNestedScroll(axes & nestedScrollAxes);
         if (!isStateSafe()) return;
+        scrollerCompat.abortAnimation();
         parentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
     }
 
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        if(isNestedScrollingEnabled()) {
+        if (isNestedScrollingEnabled()) {
             dispatchNestedPreScroll(dx, dy, consumed, null);
         }
 
-        if(mConsumedByParent) {
+        if (mConsumedByParent) {
             return;
         }
         if (!isStateSafe()) return;
@@ -213,9 +215,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             if ((scrollDirect == Gravity.START && dy > 0 && currentScrollOffset < 0)
                     || (scrollDirect == Gravity.END && dy < 0 && currentScrollOffset > 0)) {
                 if (contentScroll) {
-                    //scrollBy(0, (int) (dy / resistance));
-                    realScrollOffset = -(int) (dy / resistance);
-                    ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
+                    moveViewBy(0, -dy / resistance);
                     consumed[1] += (dy);
                 }
                 currentScrollOffset += dy;
@@ -231,18 +231,18 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
 
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
                                int dxUnconsumed, int dyUnconsumed) {
-        if(isNestedScrollingEnabled()){
-            if(mTempOffsetInWindow == null){
+        if (isNestedScrollingEnabled()) {
+            if (mTempOffsetInWindow == null) {
                 mTempOffsetInWindow = new int[2];
             }
-            JLog.d("mConsumedByParent:" + mConsumedByParent + ", dyUnconsumed:" + dyUnconsumed + ", offsetInWindow:"+ mTempOffsetInWindow[1]);
+            JLog.d("mConsumedByParent:" + mConsumedByParent + ", dyUnconsumed:" + dyUnconsumed + ", offsetInWindow:" + mTempOffsetInWindow[1]);
             dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, mTempOffsetInWindow);
-            JLog.d("dyConsumed:" + dyConsumed + ", dyUnconsumed:" + dyUnconsumed + ", offsetInWindow:"+ mTempOffsetInWindow[1]);
+            JLog.d("dyConsumed:" + dyConsumed + ", dyUnconsumed:" + dyUnconsumed + ", offsetInWindow:" + mTempOffsetInWindow[1]);
 
-            if(mConsumedByParent) {
+            if (mConsumedByParent) {
                 return;
             }
-            mConsumedByParent = mTempOffsetInWindow[0] !=0 || mTempOffsetInWindow[1] != 0;
+            mConsumedByParent = mTempOffsetInWindow[0] != 0 || mTempOffsetInWindow[1] != 0;
         }
 
         if (!isStateSafe()) return;
@@ -250,13 +250,13 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         if (scrollState == SCROLL_STATE_IDLE) {
             scrollState = SCROLL_STATE_DRAGGING;
             int distance = isVerticalScroll() ? dyUnconsumed : dxUnconsumed;
-            if(distance == 0){
+            if (distance == 0) {
                 return;
             }
             scrollDirect = distance < 0 ? Gravity.START : Gravity.END;
             dispatchScrollStateChanged(scrollDirect, scrollState);
         }
-        if(scrollDirect  == 0){
+        if (scrollDirect == 0) {
             int distance = isVerticalScroll() ? dyUnconsumed : dxUnconsumed;
             scrollDirect = distance < 0 ? Gravity.START : Gravity.END;
         }
@@ -266,9 +266,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             if ((scrollDirect == Gravity.START && startEnable) || (scrollDirect == Gravity.END && endEnable)) {
                 if (Math.abs(currentScrollOffset) < maxOffset) {
                     if (contentScroll) {
-//                        scrollBy(0, (int) (dyUnconsumed / resistance));
-                        realScrollOffset = -(int) (dyUnconsumed / resistance);
-                        ViewCompat.offsetTopAndBottom(dataView, realScrollOffset);
+                        moveViewBy(0, -dyUnconsumed / resistance);
                     }
                     currentScrollOffset += dyUnconsumed;
                     dispatchScrolled(dyUnconsumed);
@@ -299,7 +297,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         if (!isStateSafe()) return;
 
 
-        if(mConsumedByParent) {
+        if (mConsumedByParent) {
             //reset state.
             scrollState = SCROLL_STATE_IDLE;
             mConsumedByParent = false;
@@ -311,27 +309,44 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
 
             // TODO: 16-3-25 process horizontal scroll...
             //roll back.
-            //JLog.d("currentScrollOffset: " + currentScrollOffset);
-            if(currentScrollOffset != 0) {
+            if (currentScrollOffset != 0) {
                 scrollState = SCROLL_STATE_SETTLING;
                 dispatchScrollStateChanged(scrollDirect, scrollState);
-                scrollerCompat.startScroll(0, currentScrollOffset, 0, -currentScrollOffset, 500);
+                scrollerCompat.startScroll(0, currentScrollOffset, 0, -currentScrollOffset, during);
                 postInvalidate();
             } else {
                 finishScroll();
             }
-        }else{
+        } else {
             dispatchScrollStateChanged(scrollDirect, scrollState);
         }
     }
 
-    void dispatchScrollStateChanged(int scrollDirect, int state){
+    void dispatchScrollStateChanged(int scrollDirect, int state) {
         swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, state);
     }
 
-    void dispatchScrolled(int offsetPixels){
+    void dispatchScrolled(int offsetPixels) {
         float percent = currentScrollOffset / ((scrollDirect == Gravity.START) ? startOffset : endOffset);
-        swipeLoadListener.onScrolled(this, scrollDirect, percent , offsetPixels);
+        swipeLoadListener.onScrolled(this, scrollDirect, percent, offsetPixels);
+    }
+
+    void moveViewBy(float offsetX, float offsetY){
+        if(offsetX != 0){
+            float translate = dataView.getTranslationX() + offsetX;
+            dataView.setTranslationX(translate);
+        }
+
+        if (offsetY != 0) {
+            float translate = dataView.getTranslationY() + offsetY;
+            dataView.setTranslationY(translate);
+        }
+    }
+
+
+    void moveViewTo(float x, float y){
+        dataView.setTranslationX(x);
+        dataView.setTranslationY(y);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -361,7 +376,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         // TODO: 16-3-25 process horizontal scroll...
         // 16-3-24 offset content to origin place
         JLog.d("currentScrollOffset: " + currentScrollOffset);
-        scrollerCompat.startScroll(0, currentScrollOffset, 0, -currentScrollOffset, 400);
+        scrollerCompat.startScroll(0, currentScrollOffset, 0, -currentScrollOffset, during);
         postInvalidate();
     }
 
@@ -376,7 +391,6 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         this.contentScroll = scroll;
         Log.d(TAG, "content enable change");
     }
-
 
 
     @Override
