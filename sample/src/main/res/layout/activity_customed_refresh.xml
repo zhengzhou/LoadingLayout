@@ -6,18 +6,11 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <com.zayn.loadingview.ui.SimpleLoadingView
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_gravity="bottom"
-        />
-
     <com.zayn.loadingview.library.NestedLoadingLayout
         android:id="@+id/loadLayout"
         style="@style/ll__Simple_Load_Style"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:ll__content_scroll_enable="true"
         app:ll__start_enable="true"
         app:ll__end_enable="true"
         >
@@ -31,12 +24,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:text="@string/large_text" />
 
                 <TextView
                     android:layout_width="wrap_content"

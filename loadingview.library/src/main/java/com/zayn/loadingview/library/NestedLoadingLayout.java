@@ -201,6 +201,8 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     }
 
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        scrollerCompat.abortAnimation();
+
         if (isNestedScrollingEnabled()) {
             dispatchNestedPreScroll(dx, dy, consumed, null);
         }
@@ -410,7 +412,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
 
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER);
     }
 
     public static class LayoutParams extends FrameLayout.LayoutParams {
@@ -430,6 +432,11 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
 
         public LayoutParams(int width, int height) {
             super(width, height);
+        }
+
+        public LayoutParams(int width, int height, int gravity) {
+            super(width, height);
+            this.gravity = gravity;
         }
 
         @TargetApi(Build.VERSION_CODES.KITKAT)

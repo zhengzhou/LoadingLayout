@@ -16,7 +16,7 @@ public class CustomRefreshActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customed_refresh);
         loadingLayout = (NestedLoadingLayout) findViewById(R.id.loadLayout);
-        loadingLayout.setContentScrollEnable(false);
+//        loadingLayout.setContentScrollEnable(false);
         LoadingSwipeListener loadingSwipeListener = new LoadingSwipeListener();
         loadingSwipeListener.bindPullLoadView(loadingLayout, Gravity.START);
 
