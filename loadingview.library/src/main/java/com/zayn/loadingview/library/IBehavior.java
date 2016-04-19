@@ -7,11 +7,23 @@ import android.view.View;
  */
 public interface IBehavior {
 
-    void onStartOffset(View view, int offset);
+    /**
+     * 在内容上面还是前面还是后面
+     * dataView的高度是0.
+     * @return
+     */
+    int getZOrder();
 
-    boolean startContentMove();
+    int getHeight();
 
-    void onEndOffset(View view, int offset);
+    /**
+     * 初始时候的位置位移。
+     * @return
+     */
+    int getTotalOffset();
 
-    boolean endContentMove();
+    void onScrolled(int offset);
+
+    boolean onStateChange(int state);
+
 }
