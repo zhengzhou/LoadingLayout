@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -11,6 +12,7 @@ import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -394,6 +396,56 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         Log.d(TAG, "content enable change");
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // on Touch event
+    ///////////////////////////////////////////////////////////////////////////
+
+    private boolean mIsBeingDragged;
+    private int mActivePointerId;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (scrollState == SCROLL_STATE_WAITING) {
+            return true;
+        }
+
+        final int action = MotionEventCompat.getActionMasked(ev);
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+//                scrollTargetOffset(0, 0);
+                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mIsBeingDragged = false;
+
+                float initialDownY = MotionEventCompat.getY(ev, mActivePointerId);
+                if (initialDownY == -1) {
+                    return false;
+                }
+
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                break;
+
+            case MotionEvent.ACTION_POINTER_UP:
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                break;
+        }
+
+        return mIsBeingDragged;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // layout Params
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public LayoutParams generateLayoutParams(AttributeSet attrs) {
