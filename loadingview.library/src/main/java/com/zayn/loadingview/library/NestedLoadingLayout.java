@@ -20,6 +20,9 @@ import android.widget.FrameLayout;
 
 import com.jiongbull.jlog.JLog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * implement the nestScrollParent.
  * can swipe to refresh or loadMore.
@@ -39,13 +42,14 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     private final int during = 300;
 
     private NestedScrollingParentHelper parentHelper;
-    private OnSwipeLoadListener swipeLoadListener = new SimpleSwipeLoadListener();
     private int axes = ViewCompat.SCROLL_AXIS_VERTICAL;
     private boolean contentScroll;
     private boolean startEnable, endEnable;
     private int startOffset, endOffset;
     private ScrollerCompat scrollerCompat;
     private int currentScrollOffset;
+    private OnSwipeLoadListener swipeLoadListener = new SimpleSwipeLoadListener();
+    private List<IBehavior> behaviorList;
 
     private int scrollState = SCROLL_STATE_IDLE;
     private int scrollDirect = Gravity.NO_GRAVITY;
@@ -77,7 +81,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         parentHelper = new NestedScrollingParentHelper(this);
         scrollerCompat = ScrollerCompat.create(context);
         setNestedScrollingEnabled(true);
-
+        behaviorList = new ArrayList<>(2);
     }
 
     @Override
@@ -113,6 +117,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     protected void onFinishInflate() {
         super.onFinishInflate();
         View startView = null, endView = null;
+        LayoutParams startViewParam = null, endViewParam = null;
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             LayoutParams layoutParams = (LayoutParams) v.getLayoutParams();
@@ -120,15 +125,19 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
                 dataView = v;
             } else if (layoutParams.viewType == LayoutParams.START) {
                 startView = v;
+                startViewParam = layoutParams;
             } else if (layoutParams.viewType == LayoutParams.END) {
                 endView = v;
+                endViewParam = layoutParams;
             }
         }
         if (!startEnable && !endEnable)
             return;
 
-        FrameLayout.LayoutParams startViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        FrameLayout.LayoutParams endViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        if(startViewParam == null)
+            startViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        if(endViewParam == null)
+            endViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         if (isVerticalScroll()) {
             startViewParam.gravity = Gravity.TOP;
             endViewParam.gravity = Gravity.BOTTOM;
@@ -327,12 +336,21 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     }
 
     void dispatchScrollStateChanged(int scrollDirect, int state) {
-        swipeLoadListener.onPageScrollStateChanged(this, scrollDirect, state);
+        swipeLoadListener.onStateChanged(this, scrollDirect, state);
+        for(IBehavior behavior: behaviorList){
+            if(behavior != null)//todo assert not null
+            behavior.onStateChange(state);
+        }
     }
 
     void dispatchScrolled(int offsetPixels) {
         float percent = currentScrollOffset / ((scrollDirect == Gravity.START) ? startOffset : endOffset);
         swipeLoadListener.onScrolled(this, scrollDirect, percent, offsetPixels);
+
+        for(IBehavior behavior: behaviorList){
+            if(behavior != null)//todo assert not null
+                behavior.onScrolled(offsetPixels);
+        }
     }
 
     void moveViewBy(float offsetX, float offsetY){
@@ -474,6 +492,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         public static final int BODY = 3;
 
         int viewType = BODY;
+        IBehavior behavior;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -509,7 +528,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     public static class SimpleSwipeLoadListener implements OnSwipeLoadListener {
 
         @Override
-        public void onPageScrollStateChanged(NestedLoadingLayout loadingLayout, int place, int state) {
+        public void onStateChanged(NestedLoadingLayout loadingLayout, int place, int state) {
             if (state == SCROLL_STATE_WAITING) {
                 if (place == Gravity.START) {
                     onRefresh(loadingLayout);

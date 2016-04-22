@@ -47,7 +47,7 @@ public class LoadingSwipeListener implements OnSwipeLoadListener {
     }
 
     @Override
-    public void onPageScrollStateChanged(final NestedLoadingLayout loadingLayout, int place, int state) {
+    public void onStateChanged(final NestedLoadingLayout loadingLayout, int place, int state) {
         JLog.d("state change:" + state);
         this.state = state;
         if (NestedLoadingLayout.SCROLL_STATE_WAITING == state) {

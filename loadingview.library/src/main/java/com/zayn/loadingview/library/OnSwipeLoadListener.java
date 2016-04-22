@@ -5,7 +5,7 @@ package com.zayn.loadingview.library;
  */
 public interface OnSwipeLoadListener {
 
-    void onPageScrollStateChanged(NestedLoadingLayout loadingLayout, int place, int state);
+    void onStateChanged(NestedLoadingLayout loadingLayout, int place, int state);
 
     void onScrolled(NestedLoadingLayout loadingLayout, int place, float positionOffset, int positionOffsetPixels);
 }
