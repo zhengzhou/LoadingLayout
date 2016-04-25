@@ -21,6 +21,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:padding="@dimen/activity_horizontal_margin"
+            android:background="@android:color/darker_gray"
             >
 
             <LinearLayout

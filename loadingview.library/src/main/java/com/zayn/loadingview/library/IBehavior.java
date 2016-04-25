@@ -1,7 +1,5 @@
 package com.zayn.loadingview.library;
 
-import android.view.View;
-
 /**
  * Created by zhou on 16-4-6.
  */

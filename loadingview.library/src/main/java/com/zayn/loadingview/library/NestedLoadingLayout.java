@@ -3,6 +3,7 @@ package com.zayn.loadingview.library;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingParent;
@@ -15,10 +16,10 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.jiongbull.jlog.JLog;
+import com.zayn.loadingview.library.behavior.BehindBehavior;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +119,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         super.onFinishInflate();
         View startView = null, endView = null;
         LayoutParams startViewParam = null, endViewParam = null;
+        //if start view & end View are defined in xml
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             LayoutParams layoutParams = (LayoutParams) v.getLayoutParams();
@@ -131,34 +133,140 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
                 endViewParam = layoutParams;
             }
         }
-        if (!startEnable && !endEnable)
-            return;
 
-        if(startViewParam == null)
-            startViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        if(endViewParam == null)
-            endViewParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        if (isVerticalScroll()) {
-            startViewParam.gravity = Gravity.TOP;
-            endViewParam.gravity = Gravity.BOTTOM;
-        } else {
-            startViewParam.gravity = Gravity.START;
-            endViewParam.gravity = Gravity.END;
+        if (startEnable) {
+            if (startViewParam == null) {
+                startViewParam = generateDefaultLayoutParams();
+                startViewParam.viewType = LayoutParams.START;
+            }
+
+            startViewParam.gravity = isVerticalScroll() ? Gravity.TOP : Gravity.START;
+
+            if (startView != null) {
+                stateViewHolder.loadStartView = startView;
+            } else if (startEnable) {
+                addView(stateViewHolder.loadStartView, startViewParam);
+            }
+            startViewParam.behavior = new BehindBehavior(stateViewHolder.loadStartView);
         }
-        if (startView != null) {
-            stateViewHolder.loadStartView = startView;
-        } else if (startEnable) {
-            if (contentScroll)
-                startViewParam.topMargin = (int) (-startOffset / resistance);
-            addView(stateViewHolder.loadStartView, startViewParam);
+
+        if (endEnable) {
+            if (endViewParam == null) {
+                endViewParam = generateDefaultLayoutParams();
+                endViewParam.viewType = LayoutParams.END;
+            }
+
+            endViewParam.gravity = isVerticalScroll() ? Gravity.BOTTOM : Gravity.END;
+            if (endView != null) {
+                stateViewHolder.loadEndView = endView;
+            } else if (endEnable) {
+                addView(stateViewHolder.loadEndView, endViewParam);
+            }
+            endViewParam.behavior = new BehindBehavior(stateViewHolder.loadEndView);
         }
-        if (endView != null) {
-            stateViewHolder.loadEndView = endView;
-        } else if (endEnable) {
-            if (contentScroll)
-                endViewParam.bottomMargin = (int) (-endOffset / resistance);
-            addView(stateViewHolder.loadEndView, endViewParam);
+
+        setChildrenDrawingOrderEnabled(true);
+    }
+
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        View child = getChildAt(i);
+        if(child == dataView){
+            return childCount / 2;
+        }else if(getChildAt(i) == stateViewHolder.loadStartView ||
+                    child == stateViewHolder.loadEndView){
+            return childCount / 2 + getZOrder(child);
+
         }
+        return super.getChildDrawingOrder(childCount, i);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if(startEnable && stateViewHolder.getLoadStartView() != null) {
+            measureChild(stateViewHolder.getLoadStartView(), widthMeasureSpec, heightMeasureSpec);
+        }
+        if(endEnable && stateViewHolder.getLoadEndView() != null) {
+            measureChild(stateViewHolder.getLoadEndView(), widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        final int parentLeft = getPaddingLeft();
+        final int parentRight = right - left - getPaddingRight();
+        final int parentTop = getPaddingTop();
+        final int parentBottom = bottom - top - getPaddingBottom();
+
+        LayoutParams params = (LayoutParams) dataView.getLayoutParams();
+        int childLeft = parentLeft + params.leftMargin;
+        int childTop = parentTop + params.topMargin;
+
+        View startView = stateViewHolder.getLoadStartView();
+        View endView = stateViewHolder.getLoadEndView();
+
+        if (getZOrder(startView) != 0) {
+            layoutChildView(startView, parentLeft, parentTop, parentRight, parentBottom);
+            layoutChildView(endView, parentLeft, parentTop, parentRight, parentBottom);
+        }
+        dataView.layout(childLeft, childTop, childLeft + dataView.getMeasuredWidth(), childTop + dataView.getMeasuredHeight());
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+
+    private int getZOrder(View view) {
+        if(view == null){
+            return 0;
+        }
+        LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+        if(layoutParams != null && layoutParams.behavior != null){
+            return layoutParams.behavior.getZOrder();
+        }else {
+            return 0;
+        }
+    }
+
+    private void layoutChildView(View view, int left, int top, int right, int bottom) {
+        LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+        IBehavior startBehavior = layoutParams.behavior;
+
+        if (layoutParams.viewType == LayoutParams.START && startEnable) {
+            if (isVerticalScroll()) {
+                top = top - startBehavior.getTotalOffset() + layoutParams.topMargin;
+                view.layout(left, top, right, top + view.getMeasuredHeight());
+            } else {
+                left += startBehavior.getTotalOffset() + layoutParams.leftMargin;
+                view.layout(left, top, left + view.getMeasuredWidth(), bottom);
+            }
+        }else if (layoutParams.viewType == LayoutParams.END && endEnable) {
+            if (isVerticalScroll()) {
+                top = bottom  - view.getMeasuredHeight() + startBehavior.getTotalOffset() - layoutParams.bottomMargin;
+                view.layout(left, top, right, top + view.getMeasuredHeight());
+            } else {
+                left = right - view.getMeasuredWidth() + startBehavior.getTotalOffset() - layoutParams.rightMargin;
+                view.layout(left, top, left + view.getMeasuredWidth(), bottom);
+            }
+        }
+    }
+
+    private IBehavior ensureBehavior(View view){
+        IBehavior behavior;
+
+        LoadingBehavior annotation = view.getClass().getAnnotation(LoadingBehavior.class);
+        if(annotation != null){
+
+        }
+        behavior = new BehindBehavior(view);
+
+        LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+        layoutParams.behavior = behavior;
+
+        return behavior;
     }
 
     private boolean isVerticalScroll() {
