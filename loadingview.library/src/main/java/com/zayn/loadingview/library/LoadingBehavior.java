@@ -13,5 +13,5 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target({TYPE})
 public @interface LoadingBehavior {
 
-    String value();
+    Class<? extends IBehavior> value();
 }

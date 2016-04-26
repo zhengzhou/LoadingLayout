@@ -23,6 +23,8 @@ public class StateViewHolder implements IViewSetter {
     View emptyView;
     View loadStartView;
     View loadEndView;
+    @LayoutRes int loadStartLayout;
+    @LayoutRes int loadEndLayout;
 
     public StateViewHolder(Context context, AttributeSet attrs, int defStyleAttr) {
         inflater = LayoutInflater.from(context);
@@ -31,14 +33,12 @@ public class StateViewHolder implements IViewSetter {
         int errorLayout = a.getResourceId(R.styleable.LoadingLayout_ll__ErrorView, R.layout.ll__error);
         int emptyLayout = a.getResourceId(R.styleable.LoadingLayout_ll__EmptyView, R.layout.ll__empty);
         int loadingLayout = a.getResourceId(R.styleable.LoadingLayout_ll__LoadingView, R.layout.ll__loading);
-        int loadStartLayout = a.getResourceId(R.styleable.LoadingLayout_ll__LoadStartView, R.layout.ll__loading);
-        int loadEndLayout = a.getResourceId(R.styleable.LoadingLayout_ll__LoadEndView, R.layout.ll__loading);
+        loadStartLayout = a.getResourceId(R.styleable.LoadingLayout_ll__LoadStartView, R.layout.ll__loading);
+        loadEndLayout = a.getResourceId(R.styleable.LoadingLayout_ll__LoadEndView, R.layout.ll__loading);
         a.recycle();
         setErrorView(errorLayout);
         setEmptyView(emptyLayout);
         setLoadingView(loadingLayout);
-        setLoadStartView(loadStartLayout);
-        setLoadEndView(loadEndLayout);
     }
 
     @Override

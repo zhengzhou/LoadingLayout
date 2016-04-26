@@ -1,5 +1,7 @@
 package com.zayn.loadingview.library.behavior;
 
+import android.content.Context;
+import android.util.AttributeSet;
 import android.view.View;
 
 import com.zayn.loadingview.library.IBehavior;
@@ -8,36 +10,31 @@ import com.zayn.loadingview.library.NestedLoadingLayout;
 /**
  * Created by zhou on 16-4-25.
  */
-public class UpBehavior implements IBehavior {
+public class UpBehavior extends IBehavior<View> {
 
     private View target;
 
-    public UpBehavior(View target) {
-        this.target = target;
+    public UpBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
     @Override
     public int getZOrder() {
-        return 1;
+        return -1;
     }
 
     @Override
-    public int getHeight() {
-        return target.getHeight();
+    public int getTotalOffset(View view) {
+        return view.getMeasuredHeight();
     }
 
     @Override
-    public int getTotalOffset() {
-        return getHeight();
+    public void onScrolled(View view, int offset) {
+
     }
 
     @Override
-    public void onScrolled(int offset) {
-        //do nothing.
-    }
-
-    @Override
-    public boolean onStateChange(int state) {
+    public boolean onStateChange(View view, int state) {
         if(state == NestedLoadingLayout.SCROLL_STATE_DRAGGING){
             target.setVisibility(View.VISIBLE);
         } else if(state == NestedLoadingLayout.SCROLL_STATE_IDLE){
@@ -45,4 +42,5 @@ public class UpBehavior implements IBehavior {
         }
         return false;
     }
+
 }

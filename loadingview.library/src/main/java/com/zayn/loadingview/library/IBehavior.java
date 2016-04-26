@@ -1,27 +1,32 @@
 package com.zayn.loadingview.library;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
+
 /**
  * Created by zhou on 16-4-6.
  */
-public interface IBehavior {
+public abstract class IBehavior<V extends View> {
+
+    public IBehavior(Context context, AttributeSet attrs) {
+    }
 
     /**
      * 在内容上面还是前面还是后面
      * dataView的高度是0.
      * @return
      */
-    int getZOrder();
-
-    int getHeight();
+    public abstract int getZOrder();
 
     /**
      * 初始时候的位置位移。
      * @return
      */
-    int getTotalOffset();
+    public abstract int getTotalOffset(V view);
 
-    void onScrolled(int offset);
+    public abstract void onScrolled(V view, int offset);
 
-    boolean onStateChange(int state);
+    public abstract boolean onStateChange(V view, int state);
 
 }

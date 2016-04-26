@@ -3,26 +3,33 @@ package com.zayn.loadingview.library;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
+import android.content.res.XmlResourceParser;
 import android.os.Build;
+import android.support.annotation.LayoutRes;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Xml;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.jiongbull.jlog.JLog;
-import com.zayn.loadingview.library.behavior.BehindBehavior;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * implement the nestScrollParent.
@@ -33,6 +40,20 @@ import java.util.List;
 public class NestedLoadingLayout extends NestAsChildLayout implements NestedScrollingParent, ISwiper {
 
     public static final String TAG = "LoadingLayout";
+    static final String WIDGET_PACKAGE_NAME;
+
+    static {
+        final Package pkg = NestedLoadingLayout.class.getPackage();
+        WIDGET_PACKAGE_NAME = pkg != null ? pkg.getName() : null;
+    }
+    static final Class<?>[] CONSTRUCTOR_PARAMS = new Class<?>[] {
+            Context.class,
+            AttributeSet.class
+    };
+
+    static final ThreadLocal<Map<String, Constructor<IBehavior>>> sConstructors =
+            new ThreadLocal<>();
+
 
     public static final int SCROLL_STATE_IDLE = 0;
     public static final int SCROLL_STATE_DRAGGING = 1;
@@ -50,7 +71,6 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     private ScrollerCompat scrollerCompat;
     private int currentScrollOffset;
     private OnSwipeLoadListener swipeLoadListener = new SimpleSwipeLoadListener();
-    private List<IBehavior> behaviorList;
 
     private int scrollState = SCROLL_STATE_IDLE;
     private int scrollDirect = Gravity.NO_GRAVITY;
@@ -82,7 +102,6 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         parentHelper = new NestedScrollingParentHelper(this);
         scrollerCompat = ScrollerCompat.create(context);
         setNestedScrollingEnabled(true);
-        behaviorList = new ArrayList<>(2);
     }
 
     @Override
@@ -117,55 +136,60 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        View startView = null, endView = null;
-        LayoutParams startViewParam = null, endViewParam = null;
         //if start view & end View are defined in xml
         for (int i = 0; i < getChildCount(); i++) {
-            View v = getChildAt(i);
-            LayoutParams layoutParams = (LayoutParams) v.getLayoutParams();
-            if (layoutParams.viewType == LayoutParams.BODY) {
-                dataView = v;
-            } else if (layoutParams.viewType == LayoutParams.START) {
-                startView = v;
-                startViewParam = layoutParams;
-            } else if (layoutParams.viewType == LayoutParams.END) {
-                endView = v;
-                endViewParam = layoutParams;
-            }
+            configLoadingView(getChildAt(i));
         }
 
-        if (startEnable) {
-            if (startViewParam == null) {
-                startViewParam = generateDefaultLayoutParams();
-                startViewParam.viewType = LayoutParams.START;
-            }
-
-            startViewParam.gravity = isVerticalScroll() ? Gravity.TOP : Gravity.START;
-
-            if (startView != null) {
-                stateViewHolder.loadStartView = startView;
-            } else if (startEnable) {
-                addView(stateViewHolder.loadStartView, startViewParam);
-            }
-            startViewParam.behavior = new BehindBehavior(stateViewHolder.loadStartView);
+        if (startEnable && stateViewHolder.loadStartView == null) {
+            inflateLoadingView(stateViewHolder.loadStartLayout, LayoutParams.START);
         }
-
-        if (endEnable) {
-            if (endViewParam == null) {
-                endViewParam = generateDefaultLayoutParams();
-                endViewParam.viewType = LayoutParams.END;
-            }
-
-            endViewParam.gravity = isVerticalScroll() ? Gravity.BOTTOM : Gravity.END;
-            if (endView != null) {
-                stateViewHolder.loadEndView = endView;
-            } else if (endEnable) {
-                addView(stateViewHolder.loadEndView, endViewParam);
-            }
-            endViewParam.behavior = new BehindBehavior(stateViewHolder.loadEndView);
+        if (endEnable && stateViewHolder.loadEndView == null) {
+            inflateLoadingView(stateViewHolder.loadStartLayout, LayoutParams.END);
         }
 
         setChildrenDrawingOrderEnabled(true);
+    }
+
+    /**
+     * find view's type
+     * @param view child view
+     */
+    private void configLoadingView(View view){
+
+        LayoutParams params = getResolvedLayoutParams(view);
+        int viewType = params.viewType;
+        if (viewType == LayoutParams.BODY) {
+            dataView = view;
+        } else if(viewType == LayoutParams.START) {
+            params.gravity = isVerticalScroll() ? Gravity.TOP : Gravity.START;
+            stateViewHolder.setLoadStartView(view);
+        }else if(viewType == LayoutParams.END){
+            params.gravity = isVerticalScroll() ? Gravity.BOTTOM : Gravity.END;
+            stateViewHolder.setLoadEndView(view);
+        }
+    }
+
+    /**
+     * inflate loading view from layoutRes.
+     * @param loadLayout layoutRes
+     * @param viewType view Type.
+     */
+    private void inflateLoadingView(@LayoutRes int loadLayout, int viewType){
+        XmlResourceParser layout = getContext().getResources().getLayout(loadLayout);
+        AttributeSet attributeSet = Xml.asAttributeSet(layout);
+        LayoutParams params = generateLayoutParams(attributeSet);
+        params.viewType = viewType; //LayoutParams.START;
+        View view = LayoutInflater.from(getContext()).inflate(layout, this, false);
+        if(viewType == LayoutParams.START) {
+            params.gravity = isVerticalScroll() ? Gravity.TOP : Gravity.START;
+            stateViewHolder.setLoadStartView(view);
+        }else {
+            params.gravity = isVerticalScroll() ? Gravity.BOTTOM : Gravity.END;
+            stateViewHolder.setLoadEndView(view);
+        }
+        view.setLayoutParams(params);
+        addView(view, getResolvedLayoutParams(view));
     }
 
     @Override
@@ -175,7 +199,7 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             return childCount / 2;
         }else if(getChildAt(i) == stateViewHolder.loadStartView ||
                     child == stateViewHolder.loadEndView){
-            return childCount / 2 + getZOrder(child);
+            return childCount / 2 + getZIndex(child);
 
         }
         return super.getChildDrawingOrder(childCount, i);
@@ -207,66 +231,125 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         View startView = stateViewHolder.getLoadStartView();
         View endView = stateViewHolder.getLoadEndView();
 
-        if (getZOrder(startView) != 0) {
+        if (ensureViewBehavior(startView)) {
             layoutChildView(startView, parentLeft, parentTop, parentRight, parentBottom);
+        }
+        if(ensureViewBehavior(endView)) {
             layoutChildView(endView, parentLeft, parentTop, parentRight, parentBottom);
         }
         dataView.layout(childLeft, childTop, childLeft + dataView.getMeasuredWidth(), childTop + dataView.getMeasuredHeight());
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-    }
-
-    private int getZOrder(View view) {
+    private IBehavior getBehavior(View view){
         if(view == null){
-            return 0;
+            return null;
         }
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
         if(layoutParams != null && layoutParams.behavior != null){
-            return layoutParams.behavior.getZOrder();
-        }else {
+            return layoutParams.behavior;
+        }
+        return null;
+    }
+
+    private boolean ensureViewBehavior(View view) {
+        return getBehavior(view) != null;
+    }
+
+    private int getZIndex(View view) {
+        if (ensureViewBehavior(view)) {
+            return ((LayoutParams) view.getLayoutParams()).behavior.getZOrder();
+        } else {
             return 0;
         }
     }
 
     private void layoutChildView(View view, int left, int top, int right, int bottom) {
         LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-        IBehavior startBehavior = layoutParams.behavior;
+        IBehavior behavior = layoutParams.behavior;
 
         if (layoutParams.viewType == LayoutParams.START && startEnable) {
             if (isVerticalScroll()) {
-                top = top - startBehavior.getTotalOffset() + layoutParams.topMargin;
+                top = top - behavior.getTotalOffset(view) + layoutParams.topMargin;
                 view.layout(left, top, right, top + view.getMeasuredHeight());
             } else {
-                left += startBehavior.getTotalOffset() + layoutParams.leftMargin;
+                left += behavior.getTotalOffset(view) + layoutParams.leftMargin;
                 view.layout(left, top, left + view.getMeasuredWidth(), bottom);
             }
-        }else if (layoutParams.viewType == LayoutParams.END && endEnable) {
+        } else if (layoutParams.viewType == LayoutParams.END && endEnable) {
             if (isVerticalScroll()) {
-                top = bottom  - view.getMeasuredHeight() + startBehavior.getTotalOffset() - layoutParams.bottomMargin;
+                top = bottom  - view.getMeasuredHeight() + behavior.getTotalOffset(view) - layoutParams.bottomMargin;
                 view.layout(left, top, right, top + view.getMeasuredHeight());
             } else {
-                left = right - view.getMeasuredWidth() + startBehavior.getTotalOffset() - layoutParams.rightMargin;
+                left = right - view.getMeasuredWidth() + behavior.getTotalOffset(view) - layoutParams.rightMargin;
                 view.layout(left, top, left + view.getMeasuredWidth(), bottom);
             }
         }
     }
 
-    private IBehavior ensureBehavior(View view){
-        IBehavior behavior;
-
-        LoadingBehavior annotation = view.getClass().getAnnotation(LoadingBehavior.class);
-        if(annotation != null){
-
+    /**
+     * 从自定义View 的注解上读取behavior.
+     * @param child
+     * @return
+     */
+    LayoutParams getResolvedLayoutParams(View child) {
+        final LayoutParams result = (LayoutParams) child.getLayoutParams();
+        if (!result.mBehaviorResolved) {
+            Class<?> childClass = child.getClass();
+            LoadingBehavior defaultBehavior = null;
+            while (childClass != null &&
+                    (defaultBehavior = childClass.getAnnotation(LoadingBehavior.class)) == null) {
+                childClass = childClass.getSuperclass();
+            }
+            if (defaultBehavior != null) {
+                try {
+                    result.setBehavior(defaultBehavior.value().newInstance());
+                } catch (Exception e) {
+                    Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName() +
+                            " could not be instantiated. Did you forget a default constructor?", e);
+                }
+            }
+            result.mBehaviorResolved = true;
         }
-        behavior = new BehindBehavior(view);
+        return result;
+    }
 
-        LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-        layoutParams.behavior = behavior;
+    static IBehavior parseBehavior(Context context, AttributeSet attrs, String name) {
+        if (TextUtils.isEmpty(name)) {
+            return null;
+        }
 
-        return behavior;
+        final String fullName;
+        if (name.startsWith(".")) {
+            // Relative to the app package. Prepend the app package name.
+            fullName = context.getPackageName() + name;
+        } else if (name.indexOf('.') >= 0) {
+            // Fully qualified package name.
+            fullName = name;
+        } else {
+            // Assume stock behavior in this package (if we have one)
+            fullName = !TextUtils.isEmpty(WIDGET_PACKAGE_NAME)
+                    ? (WIDGET_PACKAGE_NAME + '.' + name)
+                    : name;
+        }
+
+        try {
+            Map<String, Constructor<IBehavior>> constructors = sConstructors.get();
+            if (constructors == null) {
+                constructors = new HashMap<>();
+                sConstructors.set(constructors);
+            }
+            Constructor<IBehavior> c = constructors.get(fullName);
+            if (c == null) {
+                final Class<IBehavior> clazz = (Class<IBehavior>) Class.forName(fullName, true,
+                        context.getClassLoader());
+                c = clazz.getConstructor(CONSTRUCTOR_PARAMS);
+                c.setAccessible(true);
+                constructors.put(fullName, c);
+            }
+            return c.newInstance(context, attrs);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not inflate IBehavior subclass " + fullName, e);
+        }
     }
 
     private boolean isVerticalScroll() {
@@ -445,19 +528,29 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
 
     void dispatchScrollStateChanged(int scrollDirect, int state) {
         swipeLoadListener.onStateChanged(this, scrollDirect, state);
-        for(IBehavior behavior: behaviorList){
-            if(behavior != null)//todo assert not null
-            behavior.onStateChange(state);
+
+        if(startEnable){
+            View startView = getStateViewHolder().loadStartView;
+            getBehavior(startView).onScrolled(startView, state);
         }
+        if(endEnable){
+            View endView = getStateViewHolder().loadEndView;
+            getBehavior(endView).onScrolled(endView, state);
+        }
+
     }
 
     void dispatchScrolled(int offsetPixels) {
         float percent = currentScrollOffset / ((scrollDirect == Gravity.START) ? startOffset : endOffset);
         swipeLoadListener.onScrolled(this, scrollDirect, percent, offsetPixels);
 
-        for(IBehavior behavior: behaviorList){
-            if(behavior != null)//todo assert not null
-                behavior.onScrolled(offsetPixels);
+        if(startEnable){
+            View startView = getStateViewHolder().loadStartView;
+            getBehavior(startView).onScrolled(startView, offsetPixels);
+        }
+        if(endEnable){
+            View endView = getStateViewHolder().loadEndView;
+            getBehavior(endView).onScrolled(endView, offsetPixels);
         }
     }
 
@@ -600,17 +693,23 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
         public static final int BODY = 3;
 
         int viewType = BODY;
-        IBehavior behavior;
+        private IBehavior behavior;
+        private boolean mBehaviorResolved = false;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
             final TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.LoadingLayout_LayoutParams);
             viewType = a.getInt(R.styleable.LoadingLayout_LayoutParams_ll_viewType, BODY);
-            a.recycle();
-        }
 
-        public LayoutParams(int width, int height) {
-            super(width, height);
+            if(viewType != BODY) {
+                mBehaviorResolved = a.hasValue(
+                        R.styleable.LoadingLayout_LayoutParams_ll_behavior);
+                if (mBehaviorResolved) {
+                    behavior = parseBehavior(c, attrs, a.getString(
+                            R.styleable.LoadingLayout_LayoutParams_ll_behavior));
+                }
+            }
+            a.recycle();
         }
 
         public LayoutParams(int width, int height, int gravity) {
@@ -631,6 +730,9 @@ public class NestedLoadingLayout extends NestAsChildLayout implements NestedScro
             super(p);
         }
 
+        public void setBehavior(IBehavior behavior) {
+            this.behavior = behavior;
+        }
     }
 
     public static class SimpleSwipeLoadListener implements OnSwipeLoadListener {
